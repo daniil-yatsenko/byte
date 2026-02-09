@@ -1,6 +1,10 @@
-# Not DIY project temlplate
+# Byte
 
-Steps:
+This repo contains all the code behind Byte's Webflow website: mostly animations, interactions, and extra features which aren't feasible or possible to implement in Webflow. 
+
+The repo is using Vite: the code is built and then hosted on a CDN. Supports dev (localhost:3009), staging, and prod. 
+
+Steps to run the project:
 
 - git clone the project
 - update port in package.json and /src/utils/routerWebflow.js
@@ -22,5 +26,4 @@ the project suports multiple build files, e. g. to to have separate scripts in `
 
 to update the prod file, manually copy it from src/dist, and paste to prod. Good practice is to keep the versioning. Once the file is updated, remember to also purge the cache in the CDN ([jsdelivr link](https://www.jsdelivr.com/github)).
 
-the code from routerWebflow.js allows to route the script based on the prod / staging, and on if the localhost:3000 is up.
-
+the code from routerWebflow.js allows to route the script based on the prod / staging, and on if the localhost:3009 is up.
