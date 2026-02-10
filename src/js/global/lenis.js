@@ -6,7 +6,7 @@ export function lenisInit() {
   gsap.registerPlugin(ScrollTrigger);
 
   let lenis = new Lenis({
-    lerp: 0.2,
+    lerp: 0.4,
     smooth: true,
   });
 

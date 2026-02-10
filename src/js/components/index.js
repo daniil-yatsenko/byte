@@ -1,6 +1,8 @@
 // import { exampleComponent } from "./exampleComponent.js";
+import { taglinesInit } from "./taglines.js";
 
 export const componentsInit = (page = document) => {
+  taglinesInit(document);
   console.log("components init");
 };
 
