@@ -9,7 +9,6 @@ const taglinesInit = (page = document) => {
   gsap.registerPlugin(ScrambleTextPlugin);
 
   const taglines = page.querySelectorAll("[data-tagline]");
-  console.log(taglines);
 
   taglines.forEach((tagline) => {
     let text = tagline.textContent;
