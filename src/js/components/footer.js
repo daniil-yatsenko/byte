@@ -28,7 +28,7 @@ const footerInit = (page = document) => {
     start: "bottom bottom",
     end: `bottom bottom-=${footer.offsetHeight}`,
     animation: footerTl,
-    scrub: true,
+    scrub: 1.5,
   });
 
   const handleMouseMove = (f) => {

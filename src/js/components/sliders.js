@@ -15,7 +15,7 @@ const splideConfig = {
     type: "loop",
     perMove: 1,
     pagination: false,
-    arrows: false,
+    arrows: true,
     easing: ease,
     autoplay: true,
     speed: 700,
@@ -49,83 +49,54 @@ const splideConfig = {
   },
 };
 
-const itemStyleActive = (item) => {
-  const firstChar = document.createElement("div");
-  firstChar.classList.add("first-char");
-  firstChar.textContent = "[";
-  gsap.set(firstChar, {
-    position: "absolute",
-    top: 0,
-    left: "-0.6ch",
-  });
-
-  const lastChar = document.createElement("div");
-  lastChar.classList.add("last-char");
-  lastChar.textContent = "]";
-  gsap.set(lastChar, {
-    position: "absolute",
-    top: 0,
-    right: "-0.6ch",
-  });
-
-  gsap.set(item, { position: "relative" });
-
-  item.appendChild(firstChar);
-  item.appendChild(lastChar);
+const createBracket = (text, className, side) => {
+  const el = document.createElement("div");
+  el.classList.add(className);
+  el.textContent = text;
+  gsap.set(el, { position: "absolute", top: 0, [side]: "-0.6ch" });
+  return el;
 };
 
-const itemStyleInactive = (item) => {
-  const firstChar = item.querySelector(".first-char");
-  const lastChar = item.querySelector(".last-char");
-  if (firstChar) item.removeChild(firstChar);
-  if (lastChar) item.removeChild(lastChar);
+const setMenuBtnActive = (btn) => {
+  btn.classList.add("is-active");
+  gsap.set(btn, { position: "relative" });
+  btn.prepend(createBracket("[", "first-char", "left"));
+  btn.appendChild(createBracket("]", "last-char", "right"));
 };
 
-// observer for active slides
-let menuBtnsRef = null;
-const observer = new MutationObserver((mutations) => {
-  const menuBtns = menuBtnsRef;
-  mutations.forEach((mutation) => {
-    if (mutation.attributeName === "class") {
+const setMenuBtnInactive = (btn) => {
+  btn.classList.remove("is-active");
+  btn.querySelector(".first-char")?.remove();
+  btn.querySelector(".last-char")?.remove();
+};
+
+const findMenuBtn = (menuBtns, id) =>
+  [...menuBtns].find((btn) => btn.getAttribute("data-menu-item-id") === id);
+
+const createSlideObserver = (menuBtns) =>
+  new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.attributeName !== "class") continue;
+
       const target = mutation.target;
       const id = target.getAttribute("data-menu-item-id");
       const hasActive = target.classList.contains("is-active");
-      const oldClass = mutation.oldValue || "";
-      const hadActive = oldClass.includes("is-active");
-      if (hasActive && !hadActive) {
-        console.log(`Slide ${id}: .is-active added`);
+      const hadActive = (mutation.oldValue || "").includes("is-active");
 
-        const prevMenuBtn = [...menuBtns].find((btn) =>
+      if (hasActive && !hadActive) {
+        const prev = [...menuBtns].find((btn) =>
           btn.classList.contains("is-active"),
         );
-        if (prevMenuBtn) {
-          prevMenuBtn.classList.remove("is-active");
-          itemStyleInactive(prevMenuBtn);
-        }
+        if (prev) setMenuBtnInactive(prev);
 
-        const activeMenuBtn = [...menuBtns].find(
-          (btn) => btn.getAttribute("data-menu-item-id") === id,
-        );
-        if (activeMenuBtn) {
-          activeMenuBtn.classList.add("is-active");
-          itemStyleActive(activeMenuBtn);
-        }
+        const btn = findMenuBtn(menuBtns, id);
+        if (btn) setMenuBtnActive(btn);
       } else if (!hasActive && hadActive) {
-        console.log(`Slide ${id}: .is-active removed`);
-        const matchingMenuBtn = [...menuBtns].find(
-          (btn) => btn.getAttribute("data-menu-item-id") === id,
-        );
-        if (
-          matchingMenuBtn &&
-          matchingMenuBtn.classList.contains("is-active")
-        ) {
-          matchingMenuBtn.classList.remove("is-active");
-          itemStyleInactive(matchingMenuBtn);
-        }
+        const btn = findMenuBtn(menuBtns, id);
+        if (btn?.classList.contains("is-active")) setMenuBtnInactive(btn);
       }
     }
   });
-});
 
 // menu functionality
 const menuInit = (page = document) => {
@@ -133,19 +104,19 @@ const menuInit = (page = document) => {
   if (!menu) return;
 
   const menuBtns = menu.querySelectorAll(".menu_menu-group_item-name");
-  menuBtnsRef = menuBtns;
+  if (!menuBtns) return;
+  setMenuBtnActive(menuBtns[0]);
+
   const splideBtns = menu.querySelectorAll(".splide__pagination__page");
   const slides = menu.querySelectorAll(
     ".splide__slide:not(.splide__slide--clone)",
   );
   const slidesDict = {};
+  const observer = createSlideObserver(menuBtns);
 
   slides.forEach((slide, index) => {
     const id = slide.getAttribute("data-menu-item-id");
-    // match slide id with its order
     slidesDict[id] = index;
-
-    // observer to link active slide to menu item
     observer.observe(slide, { attributes: true, attributeOldValue: true });
   });
 
@@ -155,6 +126,16 @@ const menuInit = (page = document) => {
 
     menuBtn.addEventListener("click", () => {
       splideBtns[slidesDict[id]].click();
+    });
+
+    menuBtn.addEventListener("mouseenter", () => {
+      if (menuBtn.classList.contains("is-active")) return;
+      setMenuBtnActive(menuBtn);
+    });
+
+    menuBtn.addEventListener("mouseleave", () => {
+      if (slides[slidesDict[id]].classList.contains("is-active")) return;
+      setMenuBtnInactive(menuBtn);
     });
   });
 };
@@ -183,10 +164,15 @@ const splideInit = (page = document) => {
     }
 
     let splide = new Splide(slider, config);
+
+    if (slider.hasAttribute("data-splide-menu")) {
+      splide.on("pagination:mounted", () => {
+        menuInit();
+      });
+    }
+
     splide.mount({ Intersection });
   });
-  // rewrite on pagination mount for menu
-  menuInit();
 };
 
 export { splideInit };
