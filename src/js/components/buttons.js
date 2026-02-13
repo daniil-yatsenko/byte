@@ -33,7 +33,6 @@ const buttonsInit = (page = document) => {
       if (window.innerWidth > 991) {
         button.removeChild(firstChar);
         button.removeChild(lastChar);
-        // arrowTl.reverse();
       }
     });
   });
