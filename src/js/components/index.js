@@ -4,13 +4,15 @@ import { linksHoverInit } from "./links.js";
 import { splideInit } from "./sliders.js";
 import { buttonsInit } from "./buttons.js";
 import { footerInit } from "./footer.js";
+import { loaderInit } from "./loader.js";
 
 export const componentsInit = (page = document) => {
-  taglinesInit(document);
-  linksHoverInit(document);
-  splideInit(document);
-  buttonsInit(document);
-  footerInit(document);
+  loaderInit(page);
+  taglinesInit(page);
+  linksHoverInit(page);
+  splideInit(page);
+  buttonsInit(page);
+  footerInit(page);
   console.log("components init");
 };
 
