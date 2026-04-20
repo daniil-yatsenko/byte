@@ -1,5 +1,3 @@
-const homeInit = () => {
-  console.log("Home page initialized");
-};
+const homeInit = () => {};
 
 export { homeInit };

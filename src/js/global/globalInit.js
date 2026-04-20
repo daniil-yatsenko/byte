@@ -7,7 +7,6 @@ export { lenisMain };
 
 const globalInit = async () => {
   componentsInit(document);
-  console.log("globalInit");
 };
 
 export { globalInit };
